@@ -8,8 +8,8 @@ const morgan = require('morgan');
 dotenv.config();
 
 // Import routes
-const movieRoutes = require('./routes/movies.routes');
-const reelRoutes = require('./routes/reels.routes');
+const movieRoutes = require('../routes/movies.routes');
+const reelRoutes = require('../routes/reels.routes');
 
 // Create Express app
 const app = express();
