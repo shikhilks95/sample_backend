@@ -87,7 +87,7 @@ const getLatestMovie = (req, res) => {
       });
     }
     
-    // Format movie data for frontend
+    // Format movie data for frontend - simplified to use only stream URL
     const formattedMovie = {
       id: movie.id,
       title: movie.title,
@@ -95,9 +95,7 @@ const getLatestMovie = (req, res) => {
       duration: movie.duration,
       image: movie.thumbnailImage || movie.posterImage,
       thumbnail: movie.thumbnailImage,
-      trailerUrl: movie.trailerUrl || movie.videoUrl,
-      playUrl: movie.videoUrl,
-      streamUrl: buildStreamUrl(req, movie.id),
+      videoUrl: buildStreamUrl(req, movie.id), // Single URL for video playback
       description: movie.description,
       cast: (movie.cast || []).map(member => ({
         name: member.name,
@@ -146,7 +144,7 @@ const getMovieById = (req, res) => {
       });
     }
     
-    // Format movie data for frontend
+    // Format movie data for frontend - simplified to use only stream URL
     const formattedMovie = {
       id: movie.id,
       title: movie.title,
@@ -154,9 +152,7 @@ const getMovieById = (req, res) => {
       duration: movie.duration,
       image: movie.thumbnailImage || movie.posterImage,
       thumbnail: movie.thumbnailImage,
-      trailerUrl: movie.trailerUrl || movie.videoUrl,
-      playUrl: movie.videoUrl,
-      streamUrl: buildStreamUrl(req, movie.id),
+      videoUrl: buildStreamUrl(req, movie.id), // Single URL for video playback
       description: movie.description,
       cast: (movie.cast || []).map(member => ({
         name: member.name,
@@ -343,6 +339,7 @@ const streamMovie = (req, res) => {
       'Content-Length': chunkSize,
       'Content-Type': 'video/mp4',
     });
+
     file.pipe(res);
   } catch (error) {
     console.error('Error streaming movie:', error);

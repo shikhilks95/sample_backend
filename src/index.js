@@ -10,6 +10,7 @@ dotenv.config();
 // Import routes
 const movieRoutes = require('../routes/movies.routes');
 const reelRoutes = require('../routes/reels.routes');
+const seriesRoutes = require('../routes/series.routes');
 
 // Create Express app
 const app = express();
@@ -32,6 +33,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-enc
 // Routes
 app.use('/api/movies', movieRoutes);
 app.use('/api/reel', reelRoutes);
+app.use('/api/series', seriesRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
