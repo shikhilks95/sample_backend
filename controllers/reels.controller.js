@@ -98,6 +98,135 @@ const getReelById = (req, res) => {
 };
 
 /**
+ * Get interaction counts (likes, comments, shares) for a reel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getReelInteractions = (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Reel ID is required"
+      });
+    }
+    
+    const reel = Reel.findById(id);
+    if (!reel) {
+      return res.status(404).json({
+        success: false,
+        message: "Reel not found"
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      data: {
+        likesCount: reel.likesCount || 0,
+        commentsCount: reel.commentsCount || 0,
+        sharesCount: reel.sharesCount || 0
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching reel interactions:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch reel interactions"
+    });
+  }
+};
+
+/**
+ * Get comments for a reel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const getReelComments = (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Reel ID is required"
+      });
+    }
+    
+    // In a real implementation, you would fetch comments from a database
+    // For now, we'll return an empty array as a placeholder
+    const comments = [];
+    
+    return res.status(200).json({
+      success: true,
+      data: comments
+    });
+  } catch (error) {
+    console.error("Error fetching reel comments:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch reel comments"
+    });
+  }
+};
+
+/**
+ * Add a comment to a reel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const addReelComment = (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Reel ID is required"
+      });
+    }
+    
+    if (!text || text.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Comment text is required"
+      });
+    }
+    
+    // In a real implementation, you would save the comment to a database
+    // For now, we'll simulate adding a comment by incrementing the comment count
+    const reel = Reel.findById(id);
+    if (reel) {
+      reel.commentsCount = (reel.commentsCount || 0) + 1;
+    }
+    
+    // Return a mock comment
+    const newComment = {
+      id: Date.now().toString(),
+      username: "user123",
+      avatar: "https://i.pravatar.cc/40",
+      text: text.trim(),
+      timestamp: new Date().toISOString(),
+      likes: 0
+    };
+    
+    return res.status(201).json({
+      success: true,
+      data: newComment,
+      message: "Comment added successfully"
+    });
+  } catch (error) {
+    console.error("Error adding reel comment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to add reel comment"
+    });
+  }
+};
+
+/**
  * Like a reel
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
@@ -245,6 +374,9 @@ const shareReel = (req, res) => {
 module.exports = {
   getReelFeed,
   getReelById,
+  getReelInteractions,
+  getReelComments,
+  addReelComment,
   likeReel,
   unlikeReel,
   checkReelLiked,
