@@ -1,4 +1,5 @@
 const Reel = require('../models/Reel');
+const Comment = require('../models/Comment');
 
 /**
  * Get reel feed with pagination
@@ -154,9 +155,8 @@ const getReelComments = (req, res) => {
       });
     }
     
-    // In a real implementation, you would fetch comments from a database
-    // For now, we'll return an empty array as a placeholder
-    const comments = [];
+    // Get comments for the reel
+    const comments = Comment.getCommentsByReelId(id);
     
     return res.status(200).json({
       success: true,
@@ -179,7 +179,7 @@ const getReelComments = (req, res) => {
 const addReelComment = (req, res) => {
   try {
     const { id } = req.params;
-    const { text } = req.body;
+    const { text, userId, username, avatar } = req.body;
     
     if (!id) {
       return res.status(400).json({
@@ -195,22 +195,25 @@ const addReelComment = (req, res) => {
       });
     }
     
-    // In a real implementation, you would save the comment to a database
-    // For now, we'll simulate adding a comment by incrementing the comment count
+    // Set default values for user data if not provided
+    const commentUserId = userId || "anonymous";
+    const commentUsername = username || "Anonymous";
+    const commentAvatar = avatar || "https://api.dicebear.com/7.x/avataaars/svg?seed=Anonymous";
+    
+    // Add the comment
+    const newComment = Comment.addComment(
+      id, 
+      commentUserId, 
+      commentUsername, 
+      commentAvatar, 
+      text.trim()
+    );
+    
+    // Increment the comment count for the reel
     const reel = Reel.findById(id);
     if (reel) {
       reel.commentsCount = (reel.commentsCount || 0) + 1;
     }
-    
-    // Return a mock comment
-    const newComment = {
-      id: Date.now().toString(),
-      username: "user123",
-      avatar: "https://i.pravatar.cc/40",
-      text: text.trim(),
-      timestamp: new Date().toISOString(),
-      likes: 0
-    };
     
     return res.status(201).json({
       success: true,
@@ -368,6 +371,94 @@ const shareReel = (req, res) => {
       success: false,
       message: "Failed to share reel"
     });
+  }
+};
+
+/**
+ * Stream reel video content with HTTP range support
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const streamReel = (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate input
+    if (!id) {
+      return res.status(400).send('Reel ID is required');
+    }
+
+    // Find the reel by ID
+    const reel = Reel.findById(id);
+    if (!reel) {
+      return res.status(404).send('Reel not found');
+    }
+
+    // Extract the video URL
+    const videoUrl = reel.videoUrl;
+    
+    // Check if it's a remote URL (Cloudinary in our case)
+    if (videoUrl.startsWith('http')) {
+      // For remote URLs, we'll proxy the stream with range support
+      streamRemoteVideo(videoUrl, req, res);
+    } else {
+      // For local files, we would serve them directly
+      // This is just a fallback and won't be used with our Cloudinary setup
+      res.redirect(videoUrl);
+    }
+  } catch (error) {
+    console.error('Error streaming reel:', error);
+    res.status(500).send('Error streaming video');
+  }
+};
+
+/**
+ * Stream remote video content with HTTP range support
+ * @param {string} videoUrl - The URL of the video to stream
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const streamRemoteVideo = (videoUrl, req, res) => {
+  try {
+    const urlObj = new URL(videoUrl);
+    const client = urlObj.protocol === 'http:' ? http : https;
+
+    const headers = {};
+    if (req.headers.range) {
+      headers.Range = req.headers.range;
+    }
+
+    const proxyReq = client.request(urlObj, { headers }, (proxyRes) => {
+      // Set CORS headers for video streaming with credentials
+      res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Range, Content-Type, Accept, Accept-Ranges, Content-Range');
+      
+      // Copy relevant headers
+      const headersToCopy = ['Content-Type', 'Content-Length', 'Accept-Ranges', 'Content-Range'];
+      headersToCopy.forEach(header => {
+        if (proxyRes.headers[header]) {
+          res.setHeader(header, proxyRes.headers[header]);
+        }
+      });
+
+      // Set status code (206 for partial content, 200 for full content)
+      res.status(proxyRes.statusCode);
+
+      // Pipe the response
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('Proxy request error:', err);
+      res.status(500).send('Error streaming video');
+    });
+
+    proxyReq.end();
+  } catch (error) {
+    console.error('Error in streamRemoteVideo:', error);
+    res.status(500).send('Error streaming video');
   }
 };
 
