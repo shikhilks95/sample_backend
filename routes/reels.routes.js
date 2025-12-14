@@ -9,8 +9,11 @@ const {
   shareReel,
   getReelInteractions,
   getReelComments,
-  addReelComment
+  addReelComment,
+  checkReelReshared,
+  toggleReelReshare
 } = require('../controllers/reels.controller');
+const { authenticateUser } = require('../middleware/auth.middleware');
 
 // GET /api/reel?limit=:limit&cursor=:cursor
 router.get('/', getReelFeed);
@@ -25,16 +28,22 @@ router.get('/:id/interactions', getReelInteractions);
 router.get('/:id/comments', getReelComments);
 
 // POST /api/reel/:id/comments
-router.post('/:id/comments', addReelComment);
+router.post('/:id/comments', authenticateUser, addReelComment);
 
 // POST /api/reel/:id/like
-router.post('/:id/like', likeReel);
+router.post('/:id/like', authenticateUser, likeReel);
 
 // DELETE /api/reel/:id/like
-router.delete('/:id/like', unlikeReel);
+router.delete('/:id/like', authenticateUser, unlikeReel);
 
 // GET /api/reel/:id/like/check
-router.get('/:id/like/check', checkReelLiked);
+router.get('/:id/like/check', authenticateUser, checkReelLiked);
+
+// GET /api/reel/:id/reshare/check
+router.get('/:id/reshare/check', authenticateUser, checkReelReshared);
+
+// POST /api/reel/:id/reshare/toggle
+router.post('/:id/reshare/toggle', authenticateUser, toggleReelReshare);
 
 // POST /api/reel/:id/share
 router.post('/:id/share', shareReel);

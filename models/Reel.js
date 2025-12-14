@@ -73,6 +73,43 @@ class Reel {
     }
     return false;
   }
+
+  // Reshare a reel (check if user has reshared)
+  static checkReshared(id, userId) {
+    // In a real implementation, this would check a database
+    // For demo purposes, we'll simulate with a mock array
+    const resharedReels = global.resharedReels || {};
+    return resharedReels[userId] ? resharedReels[userId].includes(id) : false;
+  }
+
+  // Toggle reshare status for a user
+  static toggleReshare(id, userId) {
+    // Initialize if not exists
+    if (!global.resharedReels) {
+      global.resharedReels = {};
+    }
+    if (!global.resharedReels[userId]) {
+      global.resharedReels[userId] = [];
+    }
+
+    const userReshares = global.resharedReels[userId];
+    const index = userReshares.indexOf(id);
+
+    const reel = mockReels.find(r => r.id === id);
+    if (!reel) return false;
+
+    if (index > -1) {
+      // Already reshared, so remove (unreshare)
+      userReshares.splice(index, 1);
+      reel.sharesCount = Math.max(0, (reel.sharesCount || 0) - 1);
+      return { reshared: false, sharesCount: reel.sharesCount };
+    } else {
+      // Not reshared yet, so add
+      userReshares.push(id);
+      reel.sharesCount = (reel.sharesCount || 0) + 1;
+      return { reshared: true, sharesCount: reel.sharesCount };
+    }
+  }
 }
 
 // Mock data for demonstration with proper image types and real URLs

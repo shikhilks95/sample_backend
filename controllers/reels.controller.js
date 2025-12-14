@@ -375,6 +375,81 @@ const shareReel = (req, res) => {
 };
 
 /**
+ * Check if a reel is reshared by the current user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const checkReelReshared = (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id; // Get user ID from authenticated request
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Reel ID is required"
+      });
+    }
+    
+    const reshared = Reel.checkReshared(id, userId);
+    
+    return res.status(200).json({
+      success: true,
+      reshared
+    });
+  } catch (error) {
+    console.error("Error checking reel reshare status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check reel reshare status"
+    });
+  }
+};
+
+/**
+ * Toggle reshare status for a reel
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const toggleReelReshare = (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id; // Get user ID from authenticated request
+    
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Reel ID is required"
+      });
+    }
+    
+    const result = Reel.toggleReshare(id, userId);
+    
+    if (!result) {
+      return res.status(404).json({
+        success: false,
+        message: "Reel not found"
+      });
+    }
+    
+    return res.status(200).json({
+      success: true,
+      reshared: result.reshared,
+      sharesCount: result.sharesCount,
+      message: result.reshared 
+        ? "Reel reshared successfully" 
+        : "Reel unreshared successfully"
+    });
+  } catch (error) {
+    console.error("Error toggling reel reshare:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to toggle reel reshare"
+    });
+  }
+};
+
+/**
  * Stream reel video content with HTTP range support
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
@@ -471,5 +546,7 @@ module.exports = {
   likeReel,
   unlikeReel,
   checkReelLiked,
-  shareReel
+  shareReel,
+  checkReelReshared,
+  toggleReelReshare
 };
