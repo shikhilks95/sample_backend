@@ -1,5 +1,5 @@
 class Reel {
-  constructor(id, videoUrl, username, avatar, musicTitle, musicImage, likesCount, commentsCount, sharesCount, liked, description) {
+  constructor(id, videoUrl, username, avatar, musicTitle, musicImage, likesCount, commentsCount, sharesCount, liked, description, userId) {
     this.id = id;
     this.videoUrl = videoUrl;
     this.username = username;
@@ -10,7 +10,9 @@ class Reel {
     this.commentsCount = commentsCount;
     this.sharesCount = sharesCount;
     this.liked = liked;
+    this.following = false; // Default to not following
     this.description = description;
+    this.userId = userId || id; // Use id as userId if not provided
     this.createdAt = new Date().toISOString();
   }
 
@@ -125,7 +127,8 @@ const mockReels = [
     120,
     88,
     false,
-    "Amazing sunset vibes 🌅"
+    "Amazing sunset vibes 🌅",
+    "user1"
   ),
   new Reel(
     "2",
@@ -138,7 +141,8 @@ const mockReels = [
     45,
     23,
     false,
-    "Dance challenge complete! 💃"
+    "Dance challenge complete! 💃",
+    "user2"
   ),
   new Reel(
     "3",
@@ -151,7 +155,8 @@ const mockReels = [
     234,
     156,
     true,
-    "Epic transition! 🔥"
+    "Epic transition! 🔥",
+    "user3"
   ),
   new Reel(
     "4",
@@ -164,7 +169,8 @@ const mockReels = [
     67,
     34,
     false,
-    "Morning routine ✨"
+    "Morning routine ✨",
+    "user4"
   ),
   new Reel(
     "5",
@@ -177,7 +183,8 @@ const mockReels = [
     189,
     92,
     false,
-    "Behind the scenes 🎬"
+    "Behind the scenes 🎬",
+    "user5"
   ),
   new Reel(
     "6",
@@ -190,7 +197,8 @@ const mockReels = [
     156,
     78,
     false,
-    "Creating magic 🎨"
+    "Creating magic 🎨",
+    "user6"
   ),
   new Reel(
     "7",
@@ -203,7 +211,8 @@ const mockReels = [
     278,
     134,
     true,
-    "New tech review 📱"
+    "New tech review 📱",
+    "user7"
   ),
   new Reel(
     "8",
@@ -216,7 +225,8 @@ const mockReels = [
     345,
     201,
     false,
-    "Daily workout 💪"
+    "Daily workout 💪",
+    "user8"
   )
 ];
 

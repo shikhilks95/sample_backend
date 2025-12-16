@@ -3,8 +3,8 @@ const Reel = require('../models/Reel');
 // Follow a user
 const followUser = (req, res) => {
   try {
-    const { id } = req.params; // user ID
-    const userId = req.user.id; // Get user ID from authenticated request
+    const { id } = req.params; // user ID to follow
+    const userId = req.user.id; // Get current user ID from authenticated request
     
     if (!id) {
       return res.status(400).json({
@@ -13,15 +13,21 @@ const followUser = (req, res) => {
       });
     }
     
-    // In a real implementation, you would save this to a database
-    // For now, we're using the mock reel data structure
-    const success = true; // Simulate successful follow
+    // In a real implementation, you would store this in a database
+    // For now, we're simulating the operation
+    // Initialize global followed users object if it doesn't exist
+    if (!global.followedUsers) {
+      global.followedUsers = {};
+    }
     
-    if (!success) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found or already following"
-      });
+    // Initialize user's followed list if it doesn't exist
+    if (!global.followedUsers[userId]) {
+      global.followedUsers[userId] = [];
+    }
+    
+    // Add user to followed list if not already followed
+    if (!global.followedUsers[userId].includes(id)) {
+      global.followedUsers[userId].push(id);
     }
     
     return res.status(200).json({
@@ -40,8 +46,8 @@ const followUser = (req, res) => {
 // Unfollow a user
 const unfollowUser = (req, res) => {
   try {
-    const { id } = req.params; // user ID
-    const userId = req.user.id; // Get user ID from authenticated request
+    const { id } = req.params; // user ID to unfollow
+    const userId = req.user.id; // Get current user ID from authenticated request
     
     if (!id) {
       return res.status(400).json({
@@ -52,13 +58,11 @@ const unfollowUser = (req, res) => {
     
     // In a real implementation, you would remove this from a database
     // For now, we're simulating the operation
-    const success = true; // Simulate successful unfollow
-    
-    if (!success) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found or not following"
-      });
+    if (global.followedUsers && global.followedUsers[userId]) {
+      const index = global.followedUsers[userId].indexOf(id);
+      if (index > -1) {
+        global.followedUsers[userId].splice(index, 1);
+      }
     }
     
     return res.status(200).json({
@@ -77,8 +81,8 @@ const unfollowUser = (req, res) => {
 // Check if current user is following a user
 const checkUserFollowing = (req, res) => {
   try {
-    const { id } = req.params; // user ID
-    const userId = req.user.id; // Get user ID from authenticated request
+    const { id } = req.params; // user ID to check
+    const userId = req.user.id; // Get current user ID from authenticated request
     
     if (!id) {
       return res.status(400).json({
@@ -89,7 +93,9 @@ const checkUserFollowing = (req, res) => {
     
     // In a real implementation, you would check this in a database
     // For now, we're simulating the operation
-    const following = false; // Simulate not following by default
+    const following = global.followedUsers && 
+                     global.followedUsers[userId] && 
+                     global.followedUsers[userId].includes(id);
     
     return res.status(200).json({
       success: true,

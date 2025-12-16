@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {
-  getReelFeed,
+  getReelsFeed,
   getReelById,
   likeReel,
   unlikeReel,
@@ -14,9 +14,8 @@ const {
   toggleReelReshare
 } = require('../controllers/reels.controller');
 const { authenticateUser } = require('../middleware/auth.middleware');
-
 // GET /api/reel?limit=:limit&cursor=:cursor
-router.get('/', getReelFeed);
+router.get('/', getReelsFeed);
 
 // GET /api/reel/:id
 router.get('/:id', getReelById);

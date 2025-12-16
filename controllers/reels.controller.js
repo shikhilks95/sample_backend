@@ -2,31 +2,41 @@ const Reel = require('../models/Reel');
 const Comment = require('../models/Comment');
 
 /**
- * Get reel feed with pagination
+ * Get reels feed with pagination
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const getReelFeed = (req, res) => {
+const getReelsFeed = async (req, res) => {
   try {
     const { limit = 5, cursor = null } = req.query;
+    const userId = req.user?.id || "anonymous"; // Get current user ID from authenticated request
     
-    // Get reels with pagination
     const result = Reel.getFeed(parseInt(limit), cursor);
     
     // Format reels data for frontend
-    const formattedReels = result.reels.map(reel => ({
-      id: reel.id,
-      videoUrl: reel.videoUrl,
-      username: reel.username,
-      avatar: reel.avatar, // User profile image
-      musicTitle: reel.musicTitle,
-      musicImage: reel.musicImage, // Music thumbnail image
-      likesCount: reel.likesCount,
-      commentsCount: reel.commentsCount,
-      sharesCount: reel.sharesCount,
-      liked: reel.liked,
-      description: reel.description,
-      createdAt: reel.createdAt
+    const formattedReels = await Promise.all(result.reels.map(async (reel) => {
+      // Check if current user is following the reel creator
+      let following = false;
+      if (global.followedUsers && global.followedUsers[userId]) {
+        following = global.followedUsers[userId].includes(reel.userId || reel.creatorId || reel.user?.id);
+      }
+      
+      return {
+        id: reel.id,
+        videoUrl: reel.videoUrl,
+        username: reel.username,
+        userId: reel.userId || reel.creatorId || reel.user?.id,
+        avatar: reel.avatar, // User profile image
+        musicTitle: reel.musicTitle,
+        musicImage: reel.musicImage, // Music thumbnail image
+        likesCount: reel.likesCount,
+        commentsCount: reel.commentsCount,
+        sharesCount: reel.sharesCount,
+        liked: reel.liked,
+        following: following,
+        description: reel.description,
+        createdAt: reel.createdAt
+      };
     }));
     
     return res.status(200).json({
@@ -49,9 +59,10 @@ const getReelFeed = (req, res) => {
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const getReelById = (req, res) => {
+const getReelById = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.id || "anonymous"; // Get current user ID from authenticated request
     
     if (!id) {
       return res.status(400).json({
@@ -69,11 +80,18 @@ const getReelById = (req, res) => {
       });
     }
     
+    // Check if current user is following the reel creator
+    let following = false;
+    if (global.followedUsers && global.followedUsers[userId]) {
+      following = global.followedUsers[userId].includes(reel.userId || reel.creatorId || reel.user?.id);
+    }
+    
     // Format reel data for frontend
     const formattedReel = {
       id: reel.id,
       videoUrl: reel.videoUrl,
       username: reel.username,
+      userId: reel.userId || reel.creatorId || reel.user?.id,
       avatar: reel.avatar, // User profile image
       musicTitle: reel.musicTitle,
       musicImage: reel.musicImage, // Music thumbnail image
@@ -81,6 +99,7 @@ const getReelById = (req, res) => {
       commentsCount: reel.commentsCount,
       sharesCount: reel.sharesCount,
       liked: reel.liked,
+      following: following,
       description: reel.description,
       createdAt: reel.createdAt
     };
@@ -538,7 +557,7 @@ const streamRemoteVideo = (videoUrl, req, res) => {
 };
 
 module.exports = {
-  getReelFeed,
+  getReelsFeed,
   getReelById,
   getReelInteractions,
   getReelComments,
