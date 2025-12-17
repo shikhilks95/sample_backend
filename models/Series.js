@@ -96,12 +96,14 @@ const generateMockEpisodes = (seriesId, numSeasons) => {
   const titles = [
     "The Beginning", "Unexpected Turns", "Hidden Truths", "Crossroads", 
     "Revelations", "Into the Fire", "Breaking Point", "New Alliances",
-    "Betrayals", "The Return", "Final Preparations", "Endgame"
+    "Betrayals", "The Return", "Final Preparations", "Endgame",
+    "New Challenges", "Rising Threats", "Unlikely Allies", "Dark Secrets",
+    "Turning Point", "Last Stand", "New Beginnings", "Echoes of the Past"
   ];
   
   for (let season = 1; season <= numSeasons; season++) {
-    // Vary number of episodes per season (8-12 episodes)
-    const episodesInSeason = 8 + (season % 5);
+    // Increase number of episodes per season (15-20 episodes) to better test infinite scroll
+    const episodesInSeason = 15 + (season % 6);
     
     for (let episode = 1; episode <= episodesInSeason; episode++) {
       const titleIndex = (season + episode - 2) % titles.length;
@@ -110,7 +112,7 @@ const generateMockEpisodes = (seriesId, numSeasons) => {
         title: titles[titleIndex],
         season: season,
         episode: episode,
-        duration: `${40 + (episode % 15)}m`,
+        duration: `${40 + (episode % 20)}m`,
         description: `Episode ${episode} of Season ${season} in ${titles[titleIndex]}. A troubled police officer investigates a case involving ancient texts.A troubled police officer investigates a case involving ancient texts.A troubled police officer investigates a case involving ancient texts.`
       });
     }

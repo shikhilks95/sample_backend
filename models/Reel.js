@@ -71,9 +71,15 @@ class Reel {
     const reel = mockReels.find(r => r.id === id);
     if (reel) {
       reel.sharesCount += 1;
-      return true;
+      return {
+        success: true,
+        sharesCount: reel.sharesCount
+      };
     }
-    return false;
+    return {
+      success: false,
+      sharesCount: 0
+    };
   }
 
   // Reshare a reel (check if user has reshared)

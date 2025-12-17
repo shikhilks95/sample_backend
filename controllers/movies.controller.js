@@ -97,6 +97,8 @@ const getLatestMovie = (req, res) => {
       thumbnail: movie.thumbnailImage,
       videoUrl: buildStreamUrl(req, movie.id), // Single URL for video playback
       description: movie.description,
+      subtitles: movie.subtitles || [],
+      audioTracks: movie.audioTracks || [],
       cast: (movie.cast || []).map(member => ({
         name: member.name,
         role: member.role,
@@ -154,6 +156,8 @@ const getMovieById = (req, res) => {
       thumbnail: movie.thumbnailImage,
       videoUrl: buildStreamUrl(req, movie.id), // Single URL for video playback
       description: movie.description,
+      subtitles: movie.subtitles || [],
+      audioTracks: movie.audioTracks || [],
       cast: (movie.cast || []).map(member => ({
         name: member.name,
         role: member.role,
@@ -277,6 +281,52 @@ const streamRemoteVideo = (videoUrl, req, res) => {
   }
 };
 
+/**
+ * Share a movie
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const shareMovie = (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Validate input
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Movie ID is required"
+      });
+    }
+    
+    // Get movie by ID
+    const movie = Movie.findById(id);
+    
+    if (!movie) {
+      return res.status(404).json({
+        success: false,
+        message: "Movie not found"
+      });
+    }
+    
+    // Generate shareable URL
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.headers['x-forwarded-host'] || req.get('host');
+    const shareableUrl = `${protocol}://${host}/movies/play?id=${id}`;
+    
+    return res.status(200).json({
+      success: true,
+      shareableUrl: shareableUrl,
+      message: "Movie shared successfully"
+    });
+  } catch (error) {
+    console.error("Error sharing movie:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to share movie"
+    });
+  }
+};
+
 const streamMovie = (req, res) => {
   try {
     const { id } = req.params;
@@ -352,5 +402,6 @@ module.exports = {
   getLatestMovie,
   getMovieById,
   getMovieCategories,
+  shareMovie,
   streamMovie
 };

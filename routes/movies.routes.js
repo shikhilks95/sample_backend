@@ -5,6 +5,7 @@ const {
   getLatestMovie,
   getMovieById,
   getMovieCategories,
+  shareMovie,
   streamMovie
 } = require('../controllers/movies.controller');
 
@@ -19,6 +20,9 @@ router.get('/:id/stream', streamMovie);
 
 // GET /api/movies?category=:categoryCode&limit=:limit
 router.get('/', getMoviesByCategory);
+
+// POST /api/movies/:id/share
+router.post('/:id/share', shareMovie);
 
 // GET /api/movies/:id
 router.get('/:id', getMovieById);

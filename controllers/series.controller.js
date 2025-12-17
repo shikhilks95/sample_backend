@@ -480,7 +480,7 @@ const getSeriesCategories = (req, res) => {
 const getSeriesEpisodesBySeason = (req, res) => {
   try {
     const { id, season } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
     
     // Validate input
     if (!id) {
@@ -513,8 +513,10 @@ const getSeriesEpisodesBySeason = (req, res) => {
     );
     
     // Implement pagination
-    const startIndex = (parseInt(page) - 1) * parseInt(limit);
-    const endIndex = startIndex + parseInt(limit);
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const startIndex = (pageNum - 1) * limitNum;
+    const endIndex = startIndex + limitNum;
     const paginatedEpisodes = seasonEpisodes.slice(startIndex, endIndex);
     
     // Format episodes data for frontend
@@ -533,11 +535,8 @@ const getSeriesEpisodesBySeason = (req, res) => {
       success: true,
       episodes: formattedEpisodes,
       pagination: {
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(seasonEpisodes.length / parseInt(limit)),
-        totalEpisodes: seasonEpisodes.length,
-        hasNextPage: endIndex < seasonEpisodes.length,
-        hasPrevPage: startIndex > 0
+        currentPage: pageNum,
+        hasNextPage: endIndex < seasonEpisodes.length
       }
     });
   } catch (error) {

@@ -1,5 +1,5 @@
 class Movie {
-  constructor(id, title, description, category, posterImage, thumbnailImage, videoUrl, duration, releaseDate, rating, cast, crew) {
+  constructor(id, title, description, category, posterImage, thumbnailImage, videoUrl, duration, releaseDate, rating, cast, crew, subtitles, audioTracks) {
     this.id = id;
     this.title = title;
     this.description = description;
@@ -12,6 +12,8 @@ class Movie {
     this.rating = rating;
     this.cast = cast || [];
     this.crew = crew || [];
+    this.subtitles = subtitles || [];
+    this.audioTracks = audioTracks || [];
     this.createdAt = new Date().toISOString();
     this.updatedAt = new Date().toISOString();
   }
@@ -85,8 +87,17 @@ const mockMovies = [
     "Action",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl = "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
-    "2h 15m","2025-01-15",8.5,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
+    "2h 15m","2025-01-15",8.5,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/1_en.vtt' },
+      { id: 'sub2', label: 'Spanish', language: 'es', url: 'https://example.com/subtitles/1_es.vtt' },
+      { id: 'sub3', label: 'French', language: 'fr', url: 'https://example.com/subtitles/1_fr.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' },
+      { id: 'aud2', label: 'Spanish', language: 'es' }
+    ]
   ),
 
   new Movie("2", "Love in Paris",
@@ -94,7 +105,15 @@ const mockMovies = [
     "Romance",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/gndscpysm9gm0feteqgq.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 55m","2025-02-10",7.8,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 55m","2025-02-10",7.8,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/2_en.vtt' },
+      { id: 'sub2', label: 'Spanish', language: 'es', url: 'https://example.com/subtitles/2_es.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' },
+      { id: 'aud2', label: 'Spanish', language: 'es' }
+    ]
   ),
 
   new Movie("3", "Mystery Mansion",
@@ -102,7 +121,15 @@ const mockMovies = [
     "Thriller",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/y0upo8myxzfmqekm3zkd.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 5m","2025-03-05",8.2,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 5m","2025-03-05",8.2,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/3_en.vtt' },
+      { id: 'sub2', label: 'German', language: 'de', url: 'https://example.com/subtitles/3_de.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' },
+      { id: 'aud2', label: 'German', language: 'de' }
+    ]
   ),
 
   new Movie("4", "Comedy Night",
@@ -110,7 +137,13 @@ const mockMovies = [
     "Comedy",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/uytdytpvhqyxzjwumlui.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 35m","2025-01-30",7.5,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 35m","2025-01-30",7.5,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/4_en.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' }
+    ]
   ),
 
   new Movie("5", "Sci-Fi Odyssey",
@@ -118,7 +151,15 @@ const mockMovies = [
     "Science Fiction",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/etpqg630dvu0dbwlnk42.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 30m","2025-04-12",9.0,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 30m","2025-04-12",9.0,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/5_en.vtt' },
+      { id: 'sub2', label: 'Japanese', language: 'ja', url: 'https://example.com/subtitles/5_ja.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' },
+      { id: 'aud2', label: 'Japanese', language: 'ja' }
+    ]
   ),
 
   new Movie("6", "Historical Epic",
@@ -126,7 +167,15 @@ const mockMovies = [
     "History",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/qgn587hv2hkq5dzntaga.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 45m","2025-02-28",8.0,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 45m","2025-02-28",8.0,mockCast,mockCrew,
+    [
+      { id: 'sub1', label: 'English', language: 'en', url: 'https://example.com/subtitles/6_en.vtt' },
+      { id: 'sub2', label: 'Italian', language: 'it', url: 'https://example.com/subtitles/6_it.vtt' }
+    ],
+    [
+      { id: 'aud1', label: 'English', language: 'en' },
+      { id: 'aud2', label: 'Italian', language: 'it' }
+    ]
   ),
 
   new Movie("7", "Animated Dreams",
@@ -134,7 +183,7 @@ const mockMovies = [
     "Animation",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/hcmj2mxwf1r348rfqeg2.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 45m","2025-03-22",8.3,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 45m","2025-03-22",8.3,mockCast,mockCrew
   ),
 
   new Movie("8", "Superhero Origins",
@@ -142,7 +191,7 @@ const mockMovies = [
     "Action",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 20m","2025-05-10",8.7,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 20m","2025-05-10",8.7,mockCast,mockCrew
   ),
 
   new Movie("9", "Indie Romance",
@@ -150,7 +199,7 @@ const mockMovies = [
     "Romance",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/gndscpysm9gm0feteqgq.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 30m","2025-04-05",7.9,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 30m","2025-04-05",7.9,mockCast,mockCrew
   ),
 
   new Movie("10", "Cyber City",
@@ -158,7 +207,7 @@ const mockMovies = [
     "Science Fiction",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 10m","2025-06-01",8.1,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 10m","2025-06-01",8.1,mockCast,mockCrew
   ),
 
   new Movie("11", "Lost in the Desert",
@@ -166,7 +215,7 @@ const mockMovies = [
     "Adventure",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/etpqg630dvu0dbwlnk42.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 50m","2025-03-10",7.4,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 50m","2025-03-10",7.4,mockCast,mockCrew
   ),
 
   new Movie("12", "Ghost Town",
@@ -174,7 +223,7 @@ const mockMovies = [
     "Thriller",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/y0upo8myxzfmqekm3zkd.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 00m","2025-02-18",8.6,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 00m","2025-02-18",8.6,mockCast,mockCrew
   ),
 
   new Movie("13", "Battle of Legends",
@@ -182,7 +231,7 @@ const mockMovies = [
     "Fantasy",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/qgn587hv2hkq5dzntaga.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 40m","2025-05-20",8.9,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 40m","2025-05-20",8.9,mockCast,mockCrew
   ),
 
   new Movie("14", "Silent Streets",
@@ -190,7 +239,7 @@ const mockMovies = [
     "Crime",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/uytdytpvhqyxzjwumlui.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 55m","2025-04-30",7.6,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 55m","2025-04-30",7.6,mockCast,mockCrew
   ),
 
   new Movie("15", "Galaxy Rangers",
@@ -198,7 +247,7 @@ const mockMovies = [
     "Science Fiction",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/etpqg630dvu0dbwlnk42.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 25m","2025-06-15",8.8,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 25m","2025-06-15",8.8,mockCast,mockCrew
   ),
 
   new Movie("16", "Midnight Secrets",
@@ -206,7 +255,7 @@ const mockMovies = [
     "Thriller",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/hcmj2mxwf1r348rfqeg2.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 12m","2025-03-18",8.4,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 12m","2025-03-18",8.4,mockCast,mockCrew
   ),
 
   new Movie("17", "Ocean Mystery",
@@ -214,7 +263,7 @@ const mockMovies = [
     "Adventure",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 48m","2025-07-03",7.7,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 48m","2025-07-03",7.7,mockCast,mockCrew
   ),
 
   new Movie("18", "Dreamwalker",
@@ -222,7 +271,7 @@ const mockMovies = [
     "Fantasy",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/y0upo8myxzfmqekm3zkd.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 58m","2025-05-05",8.1,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 58m","2025-05-05",8.1,mockCast,mockCrew
   ),
 
   new Movie("19", "Heart of Steel",
@@ -230,7 +279,7 @@ const mockMovies = [
     "Action",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/qgn587hv2hkq5dzntaga.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"2h 10m","2025-06-25",7.9,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","2h 10m","2025-06-25",7.9,mockCast,mockCrew
   ),
 
   new Movie("20", "Funny Life",
@@ -238,14 +287,14 @@ const mockMovies = [
     "Comedy",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871245/uytdytpvhqyxzjwumlui.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl,"1h 40m","2025-07-15",7.2,mockCast,mockCrew
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4","1h 40m","2025-07-15",7.2,mockCast,mockCrew
   ),
   new Movie("21", "The Adventure Begins",
     "An epic adventure of discovery and courage.",
     "Action",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl = "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
     "2h 15m","2025-01-15",8.5,mockCast,mockCrew
   ),
   new Movie("22", "The Adventure Begins",
@@ -253,7 +302,7 @@ const mockMovies = [
     "Action",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871246/ucmttmm9luodataw9eno.png",
     "https://res.cloudinary.com/dda6kb43b/image/upload/v1764871247/esjrkffrmmnvxm7gwpuq.png",
-    videoUrl = "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
+    "https://res.cloudinary.com/dda6kb43b/video/upload/v1765258580/zdk5sbvucxrjpolekkzg.mp4",
     "2h 15m","2025-01-15",8.5,mockCast,mockCrew
   ),
 ];

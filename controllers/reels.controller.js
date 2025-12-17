@@ -15,15 +15,32 @@ const getReelsFeed = async (req, res) => {
     
     // Format reels data for frontend
     const formattedReels = await Promise.all(result.reels.map(async (reel) => {
-      // Check if current user is following the reel creator
+      // Check if current user is following the reel creator using the profile API
       let following = false;
-      if (global.followedUsers && global.followedUsers[userId]) {
-        following = global.followedUsers[userId].includes(reel.userId || reel.creatorId || reel.user?.id);
+      try {
+        // Only check follow status if user is authenticated and reel has a userId
+        if (userId !== "anonymous" && reel.userId) {
+          // Check if user is following the reel creator
+          following = global.followedUsers && 
+                     global.followedUsers[userId] && 
+                     global.followedUsers[userId].includes(reel.userId);
+        }
+      } catch (followError) {
+        console.error("Error checking follow status:", followError);
+        // Default to not following if there's an error
+        following = false;
       }
+      
+      // Generate URLs for the reel
+      const baseUrl = `${req.protocol}://${req.get('host')}/api`;
+      const streamUrl = `${baseUrl}/shorts/${reel.id}/stream`;
+      const shareableUrl = `${req.protocol}://${req.get('host')}/shorts/${reel.id}`;
       
       return {
         id: reel.id,
         videoUrl: reel.videoUrl,
+        streamUrl: streamUrl,
+        shareableUrl: shareableUrl,
         username: reel.username,
         userId: reel.userId || reel.creatorId || reel.user?.id,
         avatar: reel.avatar, // User profile image
@@ -80,16 +97,32 @@ const getReelById = async (req, res) => {
       });
     }
     
-    // Check if current user is following the reel creator
+    // Check if current user is following the reel creator using the profile API
     let following = false;
-    if (global.followedUsers && global.followedUsers[userId]) {
-      following = global.followedUsers[userId].includes(reel.userId || reel.creatorId || reel.user?.id);
+    try {
+      // Only check follow status if user is authenticated and reel has a userId
+      if (userId !== "anonymous" && reel.userId) {
+        // Check if user is following the reel creator
+        following = global.followedUsers && 
+                   global.followedUsers[userId] && 
+                   global.followedUsers[userId].includes(reel.userId);
+      }
+    } catch (followError) {
+      console.error("Error checking follow status:", followError);
+      // Default to not following if there's an error
+      following = false;
     }
     
     // Format reel data for frontend
+    const baseUrl = `${req.protocol}://${req.get('host')}/api`;
+    const streamUrl = `${baseUrl}/shorts/${reel.id}/stream`;
+    const shareableUrl = `${req.protocol}://${req.get('host')}/shorts/${reel.id}`;
+    
     const formattedReel = {
       id: reel.id,
       videoUrl: reel.videoUrl,
+      streamUrl: streamUrl,
+      shareableUrl: shareableUrl,
       username: reel.username,
       userId: reel.userId || reel.creatorId || reel.user?.id,
       avatar: reel.avatar, // User profile image
@@ -166,6 +199,7 @@ const getReelInteractions = (req, res) => {
 const getReelComments = (req, res) => {
   try {
     const { id } = req.params;
+    const { page = 1, limit = 10 } = req.query;
     
     if (!id) {
       return res.status(400).json({
@@ -175,11 +209,28 @@ const getReelComments = (req, res) => {
     }
     
     // Get comments for the reel
-    const comments = Comment.getCommentsByReelId(id);
+    const allComments = Comment.getCommentsByReelId(id);
+    
+    // Sort comments by timestamp (newest first)
+    allComments.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Calculate pagination
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + parseInt(limit);
+    const paginatedComments = allComments.slice(startIndex, endIndex);
+    
+    // Check if there are more comments
+    const hasMore = endIndex < allComments.length;
     
     return res.status(200).json({
       success: true,
-      data: comments
+      data: paginatedComments,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(allComments.length / limit),
+        totalComments: allComments.length,
+        hasMore: hasMore
+      }
     });
   } catch (error) {
     console.error("Error fetching reel comments:", error);
@@ -371,17 +422,22 @@ const shareReel = (req, res) => {
       });
     }
     
-    const success = Reel.shareReel(id);
+    const result = Reel.shareReel(id);
     
-    if (!success) {
+    if (!result.success) {
       return res.status(404).json({
         success: false,
         message: "Reel not found"
       });
     }
     
+    // Generate shareable URL for this reel
+    const shareableUrl = `${req.protocol}://${req.get('host')}/shorts/${id}`;
+    
     return res.status(200).json({
       success: true,
+      sharesCount: result.sharesCount,
+      shareableUrl: shareableUrl,
       message: "Reel shared successfully"
     });
   } catch (error) {
@@ -412,9 +468,13 @@ const checkReelReshared = (req, res) => {
     
     const reshared = Reel.checkReshared(id, userId);
     
+    // Generate shareable URL for this reel
+    const shareableUrl = `${req.protocol}://${req.get('host')}/shorts/${id}`;
+    
     return res.status(200).json({
       success: true,
-      reshared
+      reshared,
+      shareableUrl: shareableUrl
     });
   } catch (error) {
     console.error("Error checking reel reshare status:", error);
@@ -451,10 +511,14 @@ const toggleReelReshare = (req, res) => {
       });
     }
     
+    // Generate shareable URL for this reel
+    const shareableUrl = `${req.protocol}://${req.get('host')}/shorts/${id}`;
+    
     return res.status(200).json({
       success: true,
       reshared: result.reshared,
       sharesCount: result.sharesCount,
+      shareableUrl: shareableUrl,
       message: result.reshared 
         ? "Reel reshared successfully" 
         : "Reel unreshared successfully"
